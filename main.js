@@ -15,7 +15,7 @@ import {
 } from 'three';
 
 // If you prefer to import the whole library, with the THREE prefix, use the following line instead:
-// import * as THREE from 'three'
+import * as THREE from 'three'
 
 // NOTE: three/addons alias is supported by Rollup: you can use it interchangeably with three/examples/jsm/  
 
@@ -67,10 +67,9 @@ const cube = new Mesh(geometry, material);
 
 scene.add(cube);
 
-function loadData() {
+function loadData(path, name) {
   new GLTFLoader()
-    .setPath('assets/models/')
-    .load('test.glb', gltfReader);
+    .load('assets/models/city_speedway.glb', gltfReader);
 }
 
 
@@ -105,8 +104,8 @@ const animation = () => {
 
   // can be used in shaders: uniforms.u_time.value = elapsed;
 
-  cube.rotation.x = elapsed / 2;
-  cube.rotation.y = elapsed / 1;
+  // cube.rotation.x = elapsed / 2;
+  // cube.rotation.y = elapsed / 1;
 
   renderer.render(scene, camera);
 };
