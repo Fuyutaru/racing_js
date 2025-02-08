@@ -15,6 +15,9 @@ import {
 const scene = new THREE.Scene();
 const aspect = window.innerWidth / window.innerHeight;
 const camera = new THREE.PerspectiveCamera(75, aspect, 1, 1000);
+const sceneCamera = new THREE.PerspectiveCamera(100, aspect, 1, 1000);
+sceneCamera.position.set(0, 30, 0);
+
 
 
 
@@ -45,7 +48,9 @@ function animatescene() {
 }
 
 function render() {
+    // renderer.render(scene, sceneCamera);
     renderer.render(scene, camera);
+
 }
 
 function onWindowResize() {
@@ -58,7 +63,7 @@ animatescene();
 
 
 const world = new CANNON.World({
-    gravity: new CANNON.Vec3(0, -100, 0),
+    gravity: new CANNON.Vec3(0, -200, 0),
 });
 
 const groundBody = new CANNON.Body({
@@ -75,7 +80,6 @@ groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
 world.addBody(groundBody);
 
 const carBody = new CANNON.Body({
-    type: CANNON.Body.DYNAMIC,
     mass: 5,
     position: new CANNON.Vec3(0, 6, 0),
     shape: new CANNON.Box(new CANNON.Vec3(4, 0.5, 2)),
@@ -135,32 +139,32 @@ vehicle.addWheel({
 
 
 document.addEventListener('keydown', (event) => {
-    const maxSteerVal = Math.PI / 8;
+    const maxSteerVal = Math.PI / 4;
     const maxForce = 10;
 
     switch (event.key) {
-        case 'w':
+        case 'z':
         case 'ArrowUp':
-            vehicle.setWheelForce(maxForce * 10, 0);
-            vehicle.setWheelForce(maxForce * 10, 1);
+            vehicle.setWheelForce(maxForce * 15, 0);
+            vehicle.setWheelForce(maxForce * 15, 1);
             break;
 
         case 's':
         case 'ArrowDown':
-            vehicle.setWheelForce(-maxForce / 2, 0);
-            vehicle.setWheelForce(-maxForce / 2, 1);
+            vehicle.setWheelForce(-maxForce * 10, 0);
+            vehicle.setWheelForce(-maxForce * 10, 1);
             break;
 
-        case 'a':
+        case 'q':
         case 'ArrowLeft':
-            vehicle.setSteeringValue(maxSteerVal * 10, 0);
-            vehicle.setSteeringValue(maxSteerVal * 10, 1);
+            vehicle.setSteeringValue(maxSteerVal, 0);
+            vehicle.setSteeringValue(maxSteerVal, 1);
             break;
 
         case 'd':
         case 'ArrowRight':
-            vehicle.setSteeringValue(-maxSteerVal * 10, 0);
-            vehicle.setSteeringValue(-maxSteerVal * 10, 1);
+            vehicle.setSteeringValue(-maxSteerVal, 0);
+            vehicle.setSteeringValue(-maxSteerVal, 1);
             break;
     }
 });
@@ -168,7 +172,7 @@ document.addEventListener('keydown', (event) => {
 // reset car force to zero when key is released
 document.addEventListener('keyup', (event) => {
     switch (event.key) {
-        case 'w':
+        case 'z':
         case 'ArrowUp':
             vehicle.setWheelForce(0, 0);
             vehicle.setWheelForce(0, 1);
@@ -180,7 +184,7 @@ document.addEventListener('keyup', (event) => {
             vehicle.setWheelForce(0, 1);
             break;
 
-        case 'a':
+        case 'q':
         case 'ArrowLeft':
             vehicle.setSteeringValue(0, 0);
             vehicle.setSteeringValue(0, 1);
@@ -232,14 +236,19 @@ let map;
 
 loader.load(
     // resource URL
-    'assets/models/car.glb',
+    'assets/models/mario_kart.glb',
     // called when the resource is loaded
     function (gltf) {
         // carModel = gltf.scene;
         // scene.add(gltf.scene);
         car = gltf.scene;
-        // car.rotateY(Math.PI / 2);
+        // car.childen[0].position.set(0, 0, 0);
+
         scene.add(car);
+
+        car.children[0].rotateY(-Math.PI / 2);
+        // car.children.position.set(boxMesh.position.x, boxMesh.position.y - 2, boxMesh.position.z);
+        console.log(car.children[0])
 
 
 
@@ -248,7 +257,7 @@ loader.load(
         gltf.animations; // Array<THREE.AnimationClip>
         gltf.scene; // THREE.Group
         gltf.scenes; // Array<THREE.Group>
-        gltf.cameras; // Array<THREE.Camera>
+        // gltf.cameras; // Array<THREE.Camera>
         gltf.asset; // Object
 
     },
@@ -277,13 +286,13 @@ loader2.load(
         // scene.add(gltf.scene);
         map = gltf.scene;
         scene.add(map);
-        map.position.set(boxMesh.position.x, boxMesh.position.y - 2, boxMesh.position.z);
+        // map.position.set(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
         // map.scale.set(70, 70, 70);
 
         // car.position.copy(carBody.position);
         // car.quaternion.copy(carBody.quaternion);
         // console.log(gltf.scene.children[0].children[0].children[80].geometry);
-        console.log(gltf.scene.children[0].children[0]);
+        // console.log(gltf.scene.children[0].children[0]);
 
         const array = gltf.scene.children[0].children[0].children;
 
@@ -292,8 +301,9 @@ loader2.load(
             const geometry = element.geometry;
             const vertices = geometry.attributes.position.array;
             const indices = geometry.index.array;
+            // geometry.attributes.position.set(boxMesh.position.x, boxMesh.position.y - 2, boxMesh.position.z);
 
-            const scale = 70;
+            const scale = 15;
             for (let i = 0; i < vertices.length; i++) {
                 vertices[i] *= scale;
             }
@@ -364,8 +374,15 @@ sphereMesh4.visible = false;
 const offset = new CANNON.Vec3(10, 0, 0);
 
 boxMesh.add(camera);
+boxMesh.add(sceneCamera);
+sceneCamera.lookAt(boxMesh.position);
+sceneCamera.position.copy(carBody.position.vadd(new CANNON.Vec3(-10, 0, 0)));
 camera.lookAt(boxMesh.position);
 camera.position.copy(carBody.position.vadd(offset));
+
+// if (car) {
+//     sceneCamera.lookAt(car.position).vadd(new CANNON.Vec3(10, 1000, 0));
+// }
 
 
 
@@ -381,13 +398,18 @@ const animate = () => {
 
     if (map) {
         map.visible = true;
+    } else {
+        console.log("Map is not defined");
     }
 
 
     if (car) {
-        car.position.copy(carBody.position);
+        car.position.copy(carBody.position).add(new CANNON.Vec3(0, -1, 0));
         car.quaternion.copy(carBody.quaternion);
+        // sceneCamera.lookAt(car.position);
     }
+
+
 
     boxMesh.position.copy(carBody.position);
     boxMesh.quaternion.copy(carBody.quaternion);
@@ -403,10 +425,16 @@ const animate = () => {
 
 
     camera.lookAt(boxMesh.position);
+    sceneCamera.lookAt(boxMesh.position);
+
+
     // camera.position.copy(carBody.position.vadd(offset));
 
+    renderer.render(scene, sceneCamera);
     renderer.render(scene, camera);
+
     window.requestAnimationFrame(animate);
+
 };
 animate();
 
