@@ -21,7 +21,7 @@ sceneCamera.position.set(0, 30, 0);
 
 
 
-const light = new THREE.AmbientLight(0xffffff, 1.0); // soft white light
+const light = new THREE.AmbientLight(0xffffff, 1.0);
 scene.add(light);
 
 const renderer = new THREE.WebGLRenderer();
@@ -34,12 +34,6 @@ const controls = new OrbitControls(camera, renderer.domElement);
 const clock = new THREE.Clock();
 window.addEventListener('resize', () => onWindowResize(), false);
 
-// const size = 10;
-// const divisions = 10;
-
-// const gridHelper = new THREE.GridHelper(size, divisions);
-// scene.add(gridHelper);
-
 function animatescene() {
     renderer.setAnimationLoop(animatescene);
     render();
@@ -48,7 +42,6 @@ function animatescene() {
 }
 
 function render() {
-    // renderer.render(scene, sceneCamera);
     renderer.render(scene, camera);
 
 }
@@ -68,7 +61,6 @@ const world = new CANNON.World({
 
 const groundBody = new CANNON.Body({
     type: CANNON.Body.STATIC,
-    // infinte geometric plane
     shape: new CANNON.Plane(),
 });
 
@@ -76,7 +68,6 @@ const cannonDebugger = new CannonDebugger(scene, world);
 
 
 groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-// groundBody.quaternion.setFromEuler(-Math.PI / 2, Math.PI / 24, 0);
 world.addBody(groundBody);
 
 const carBody = new CANNON.Body({
@@ -169,7 +160,6 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// reset car force to zero when key is released
 document.addEventListener('keyup', (event) => {
     switch (event.key) {
         case 'z':
@@ -228,46 +218,33 @@ scene.add(sphereMesh4);
 const loader = new GLTFLoader();
 const loader2 = new GLTFLoader();
 
-// let carModel;
+
 let car;
 let map;
 
 
 
 loader.load(
-    // resource URL
     'assets/models/mario_kart.glb',
-    // called when the resource is loaded
     function (gltf) {
-        // carModel = gltf.scene;
-        // scene.add(gltf.scene);
         car = gltf.scene;
-        // car.childen[0].position.set(0, 0, 0);
 
         scene.add(car);
 
         car.children[0].rotateY(-Math.PI / 2);
-        // car.children.position.set(boxMesh.position.x, boxMesh.position.y - 2, boxMesh.position.z);
         console.log(car.children[0])
 
-
-
-
-
-        gltf.animations; // Array<THREE.AnimationClip>
-        gltf.scene; // THREE.Group
-        gltf.scenes; // Array<THREE.Group>
-        // gltf.cameras; // Array<THREE.Camera>
-        gltf.asset; // Object
+        gltf.animations;
+        gltf.scene;
+        gltf.scenes;
+        gltf.asset;
 
     },
-    // called while loading is progressing
     function (xhr) {
 
         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
 
     },
-    // called when loading has errors
     function (error) {
 
         console.log('An error happened');
@@ -278,21 +255,10 @@ loader.load(
 
 
 loader2.load(
-    // resource URL
     'assets/models/mario_kart_circuit.glb',
-    // called when the resource is loaded
     function (gltf) {
-        // carModel = gltf.scene;
-        // scene.add(gltf.scene);
         map = gltf.scene;
         scene.add(map);
-        // map.position.set(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
-        // map.scale.set(70, 70, 70);
-
-        // car.position.copy(carBody.position);
-        // car.quaternion.copy(carBody.quaternion);
-        // console.log(gltf.scene.children[0].children[0].children[80].geometry);
-        // console.log(gltf.scene.children[0].children[0]);
 
         const array = gltf.scene.children[0].children[0].children;
 
@@ -301,58 +267,34 @@ loader2.load(
             const geometry = element.geometry;
             const vertices = geometry.attributes.position.array;
             const indices = geometry.index.array;
-            // geometry.attributes.position.set(boxMesh.position.x, boxMesh.position.y - 2, boxMesh.position.z);
-
             const scale = 15;
             for (let i = 0; i < vertices.length; i++) {
                 vertices[i] *= scale;
             }
 
-            // console.log("je suis après les vertiiiiiiiiiiiiiiice");
-
-            // Create a CANNON.Trimesh shape
             const shape = new CANNON.Trimesh(vertices, indices);
 
-            // Create a CANNON.Body with the Trimesh shape
-
-
             const groundBody = new CANNON.Body({
-                // type: CANNON.body.DYNAMIC,
                 type: CANNON.Body.AWAKE,
                 mass: 0, // Static body
                 shape: shape,
             });
 
-            // console.log("j'ai le grounddddddddddddddddddddddddddd");
-            // console.log(groundBody);
+
 
             groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-            // groundBody.scale.set(70, 70, 70);
 
-
-            // Set the position of the ground body to match the map
-            // groundBody.position.copy(map.position);
-
-            // Add the ground body to the world
             world.addBody(groundBody);
         });
 
         map.visible = true;
 
-        // gltf.animations; // Array<THREE.AnimationClip>
-        // gltf.scene; // THREE.Group
-        // gltf.scenes; // Array<THREE.Group>
-        // gltf.cameras; // Array<THREE.Camera>
-        // gltf.asset; // Object
-
     },
-    // called while loading is progressing
     function (xhr) {
 
         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
 
     },
-    // called when loading has errors
     function (error) {
 
         console.log('An error happened oui');
@@ -380,20 +322,34 @@ sceneCamera.position.copy(carBody.position.vadd(new CANNON.Vec3(-10, 0, 0)));
 camera.lookAt(boxMesh.position);
 camera.position.copy(carBody.position.vadd(offset));
 
-// if (car) {
-//     sceneCamera.lookAt(car.position).vadd(new CANNON.Vec3(10, 1000, 0));
-// }
 
+
+// son 
+
+const listener = new THREE.AudioListener();
+camera.add(listener);
+
+const sound = new THREE.Audio(listener);
+
+
+function initAudio() {
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load('sounds/circuit.mp3', function (buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+        sound.play();
+    });
+}
+
+
+window.addEventListener('click', initAudio, { once: true });
+window.addEventListener('keydown', initAudio, { once: true });
 
 
 const animate = () => {
     world.fixedStep();
     cannonDebugger.update();
-
-    // const carPosition = carBody.position.clone();
-    // const cameraOffset = new CANNON.Vec3(0, 5, -10);
-    // camera.position.copy(carPosition.vadd(cameraOffset));
-    // camera.lookAt(carPosition);
 
 
     if (map) {
@@ -406,7 +362,6 @@ const animate = () => {
     if (car) {
         car.position.copy(carBody.position).add(new CANNON.Vec3(0, -1, 0));
         car.quaternion.copy(carBody.quaternion);
-        // sceneCamera.lookAt(car.position);
     }
 
 
@@ -425,12 +380,7 @@ const animate = () => {
 
 
     camera.lookAt(boxMesh.position);
-    sceneCamera.lookAt(boxMesh.position);
 
-
-    // camera.position.copy(carBody.position.vadd(offset));
-
-    renderer.render(scene, sceneCamera);
     renderer.render(scene, camera);
 
     window.requestAnimationFrame(animate);
